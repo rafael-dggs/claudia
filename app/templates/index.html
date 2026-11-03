@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Painel Principal — ClaudIA{% endblock %}
+
+{% block body %}
+<header class="app-header container">
+    <div class="brand">
+        <span>🍎</span> ClaudIA
+    </div>
+    <div class="user-info">
+        <span>Olá, <strong>{{ current_user.name }}</strong></span>
+        <a href="{{ url_for('auth.logout') }}" class="logout-btn">Sair</a>
+    </div>
+</header>
+
+<main class="app-main">
+    <div class="welcome-box">
+        <h2>Olá, {{ current_user.name }}! Sou a ClaudIA.</h2>
+        <p>A fundação da nossa plataforma está pronta com sucesso! O ambiente está preparado para recebermos o chat inteligente e a arquitetura multiagente.</p>
+        <br>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Próxima etapa: Implementação do Agente Professor e Interface de Conversação (Fase 2).</p>
+    </div>
+</main>
+{% endblock %}
