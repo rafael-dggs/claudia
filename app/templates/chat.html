@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}ClaudIA — Professora Inteligente{% endblock %}
+
+{% block body %}
+<div class="chat-layout">
+    <!-- Sidebar de Conversas -->
+    <aside class="chat-sidebar">
+        <div class="sidebar-header">
+            <a href="{{ url_for('chat.index') }}" class="brand">
+                <span>🍎</span> ClaudIA
+            </a>
+            <form action="{{ url_for('chat.new_conversation') }}" method="POST">
+                <button type="submit" class="new-chat-btn" title="Nova Conversa">
+                    + Novo
+                </button>
+            </form>
+        </div>
+
+        <div class="conversations-list">
+            {% if conversations %}
+                {% for conv in conversations %}
+                    <a href="{{ url_for('chat.get_conversation', conversation_id=conv.id) }}" 
+                       class="conv-item {% if active_conversation and active_conversation.id == conv.id %}active{% endif %}">
+                        {{ conv.title }}
+                    </a>
+                {% endfor %}
+            {% else %}
+                <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 1rem;">
+                    Nenhuma conversa iniciada. Clique em "+ Novo" para começar!
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-footer">
+            <span>{{ current_user.name }}</span>
+            <a href="{{ url_for('auth.logout') }}">Sair</a>
+        </div>
+    </aside>
+
+    <!-- Painel Principal de Conversação -->
+    <main class="chat-main">
+        {% if active_conversation %}
+            <div class="chat-header">
+                📚 {{ active_conversation.title }}
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                {% if messages %}
+                    {% for msg in messages %}
+                        <div class="message {{ msg.sender }}">
+                            <div class="message-bubble">{{ msg.content | replace('\n', '<br>') | safe }}</div>
+                            <div class="message-time">{{ msg.created_at.strftime('%H:%M') }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state" id="emptyState">
+                        <h3>Olá, {{ current_user.name }}! Sou a ClaudIA. 🍎</h3>
+                        <p>Estou pronta para te ajudar a aprender qualquer assunto. O que você gostaria de estudar hoje?</p>
+                    </div>
+                {% endif %}
+
+                <!-- Indicador de Digitação -->
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <form class="chat-form" id="chatForm" data-conversation-id="{{ active_conversation.id }}">
+                    <input type="text" class="chat-input" id="messageInput" placeholder="Digite sua dúvida ou o assunto que deseja estudar..." autocomplete="off" required>
+                    <button type="submit" class="send-btn">Enviar</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>Nenhuma conversa selecionada</h3>
+                <p>Clique em "+ Novo" na barra lateral para iniciar sua jornada de aprendizado com a ClaudIA.</p>
+                <br>
+                <form action="{{ url_for('chat.new_conversation') }}" method="POST">
+                    <button type="submit" class="btn" style="width: auto; padding: 0.75rem 1.5rem;">Iniciar Primeira Conversa</button>
+                </form>
+            </div>
+        {% endif %}
+    </main>
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% endblock %}

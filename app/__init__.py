@@ -22,18 +22,16 @@ def create_app(config_class=Config) -> Flask:
         from app.models.user import User
         return User.query.get(int(user_id))
 
+    # Importa modelos para garantir registro no SQLAlchemy
+    from app.models.user import User
+    from app.models.chat import Conversation, Message
+
     # Registra Blueprints
     from app.routes.auth import auth_bp
+    from app.routes.chat import chat_bp
+    
     app.register_blueprint(auth_bp)
-
-    # Rota raiz temporária ou principal
-    from flask import render_template
-    from flask_login import login_required
-
-    @app.route('/')
-    @login_required
-    def index():
-        return render_template('index.html')
+    app.register_blueprint(chat_bp)
 
     # Cria tabelas do banco de dados no contexto inicial se não existirem
     with app.app_context():
