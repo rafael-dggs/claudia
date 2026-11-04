@@ -25,16 +25,21 @@ def create_app(config_class=Config) -> Flask:
     # Importa modelos
     from app.models.user import User
     from app.models.chat import Conversation, Message
-    from app.models.document import Document # NOVO
+# (...) importações anteriores
+    from app.models.document import Document
+    from app.models.quiz import Quiz, QuizAttempt # NOVO
 
     # Registra Blueprints
     from app.routes.auth import auth_bp
     from app.routes.chat import chat_bp
-    from app.routes.documents import documents_bp # NOVO
+    from app.routes.documents import documents_bp
+    from app.routes.quizzes import quizzes_bp # NOVO
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(chat_bp)
-    app.register_blueprint(documents_bp, url_prefix='/docs') # NOVO
+    app.register_blueprint(documents_bp, url_prefix='/docs')
+    app.register_blueprint(quizzes_bp, url_prefix='/api/quizzes') # NOVO
+# (...)
 # (...)
 # Cria tabelas do banco de dados e configura o banco vetorial
     with app.app_context():

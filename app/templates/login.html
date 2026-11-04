@@ -9,12 +9,13 @@
         <p class="subtitle">Sua professora virtual inteligente</p>
 
         <!-- Flash Messages -->
-        with messages = get_flashed_messages(with_categories=true)
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
         {% if is_login %}
         <form method="POST" action="{{ url_for('auth.login') }}">

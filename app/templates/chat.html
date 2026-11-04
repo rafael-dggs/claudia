@@ -16,12 +16,23 @@ endblock %} {% block body %}
 
     <div class="conversations-list">
       {% if conversations %} {% for conv in conversations %}
-      <a
-        href="{{ url_for('chat.get_conversation', conversation_id=conv.id) }}"
-        class="conv-item {% if active_conversation and active_conversation.id == conv.id %}active{% endif %}"
+      <div
+        class="conv-item-container {% if active_conversation and active_conversation.id == conv.id %}active{% endif %}"
       >
-        {{ conv.title }}
-      </a>
+        <a
+          href="{{ url_for('chat.get_conversation', conversation_id=conv.id) }}"
+          class="conv-item"
+        >
+          {{ conv.title }}
+        </a>
+        <button
+          class="delete-chat-btn"
+          onclick="deleteChat({{ conv.id }})"
+          title="Excluir conversa"
+        >
+          🗑️
+        </button>
+      </div>
       {% endfor %} {% else %}
       <div
         style="
@@ -122,6 +133,24 @@ endblock %} {% block body %}
     </div>
     {% endif %}
   </main>
+</div>
+
+<!-- Modal Estrutura do Quiz -->
+<div class="modal-overlay" id="quizOverlay">
+  <div class="quiz-modal">
+    <span class="quiz-close" onclick="closeQuizModal()">&times;</span>
+    <h2 id="quizTitle" style="color: var(--primary-color); margin-bottom: 1rem">
+      Carregando Avaliação...
+    </h2>
+    <div id="quizFormContainer"></div>
+    <button
+      id="submitQuizBtn"
+      class="btn"
+      style="margin-top: 1rem; display: none"
+    >
+      Entregar Prova
+    </button>
+  </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>

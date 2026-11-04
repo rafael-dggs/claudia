@@ -284,27 +284,53 @@ main.app-main {
   gap: 0.5rem;
 }
 
+/* Atualização do Item de Conversa na Sidebar */
+.conv-item-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 8px;
+    transition: background-color 0.15s;
+}
+.conv-item-container:hover {
+    background-color: #f1f5f9;
+}
+.conv-item-container.active {
+    background-color: #e0e7ff;
+}
+.conv-item-container.active .conv-item {
+    color: var(--primary-color);
+    font-weight: 500;
+}
 .conv-item {
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  color: var(--text-main);
-  text-decoration: none;
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background-color 0.15s;
-  display: block;
+    flex: 1;
+    padding: 0.75rem 1rem;
+    color: var(--text-main);
+    text-decoration: none;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
 }
-
-.conv-item:hover {
-  background-color: #f1f5f9;
+.delete-chat-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0.4rem;
+    margin-right: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    opacity: 0; /* Invisível por padrão */
+    transition: opacity 0.2s, background-color 0.2s;
 }
-
-.conv-item.active {
-  background-color: #e0e7ff;
-  color: var(--primary-color);
-  font-weight: 500;
+.conv-item-container:hover .delete-chat-btn {
+    opacity: 1; /* Aparece ao passar o mouse */
+}
+.delete-chat-btn:hover {
+    color: var(--danger);
+    background-color: #fee2e2;
 }
 
 .sidebar-footer {
@@ -533,3 +559,42 @@ main.app-main {
 #fileInput {
   display: none;
 }
+/* Modal de Quiz */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.quiz-modal {
+  background: var(--surface);
+  width: 90%; max-width: 600px; max-height: 85vh;
+  border-radius: var(--radius);
+  padding: 2rem; overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  position: relative;
+}
+.quiz-close {
+  position: absolute; top: 1rem; right: 1.5rem;
+  font-size: 1.5rem; cursor: pointer; color: var(--text-muted);
+}
+.quiz-question {
+  margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);
+}
+.quiz-question p { font-weight: 600; margin-bottom: 0.75rem; }
+.quiz-option {
+  display: block; margin-bottom: 0.5rem; padding: 0.5rem;
+  background: #f8fafc; border-radius: 6px; cursor: pointer;
+}
+.quiz-option:hover { background: #e2e8f0; }
+.quiz-feedback-box {
+  margin-top: 0.5rem; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; display: none;
+}
+.quiz-correct { background: #d1fae5; color: #065f46; border: 1px solid #10b981; }
+.quiz-incorrect { background: #fee2e2; color: #991b1b; border: 1px solid #ef4444; }
+.btn-quiz-start {
+  background: #10b981; color: white; border: none; padding: 0.5rem 1rem;
+  border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;
+}
+.btn-quiz-start:hover { background: #059669; }

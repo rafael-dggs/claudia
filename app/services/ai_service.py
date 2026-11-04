@@ -22,14 +22,15 @@ def get_ai_response(conversation_history: list, user_id: int) -> str:
     # 2. Supervisão / Classificação
     intent = classify_intent(last_user_msg)
     current_app.logger.info(f"Intenção detectada pelo Supervisor: {intent}")
-
+    # Na função get_ai_response, localize o bloco try de roteamento e altere para:
+    
     try:
         # 3. Roteamento Multiagente
         if intent == 'QUIZ':
-            return generate_quiz_response(conversation_history, context_text)
+            return generate_quiz_response(conversation_history, context_text, user_id)
         else:
             return generate_teaching_response(conversation_history, context_text)
-            
+        
     except Exception as e:
         current_app.logger.error(f"Falha na arquitetura multiagente: {e}")
         return "Desculpe, meus agentes enfrentaram uma instabilidade técnica. Pode tentar novamente?"

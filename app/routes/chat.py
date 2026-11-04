@@ -95,3 +95,15 @@ def send_message(conversation_id):
         },
         'conversation_title': conversation.title
     })
+@chat_bp.route('/conversation/<int:conversation_id>/delete', methods=['POST'])
+@login_required
+def delete_conversation(conversation_id):
+    conversation = Conversation.query.get_or_404(conversation_id)
+    
+    if conversation.user_id != current_user.id:
+        return jsonify({'error': 'Acesso negado'}), 403
+        
+    db.session.delete(conversation)
+    db.session.commit()
+    
+    return jsonify({'status': 'success'})

@@ -29,7 +29,13 @@ def generate_teaching_response(conversation_history: list, context_text: str = "
             messages=messages,
             max_completion_tokens=1500
         )
-        return response.choices[0].message.content
+        
+        # Proteção contra respostas vazias ou nulas da API
+        content = response.choices[0].message.content
+        if not content or not content.strip():
+            return "Desculpe, a IA gerou uma resposta vazia. Pode reformular a pergunta?"
+            
+        return content
     except Exception as e:
         current_app.logger.error(f"Erro no Agente Professor: {e}")
         raise e
