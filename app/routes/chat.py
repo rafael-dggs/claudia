@@ -76,7 +76,7 @@ def send_message(conversation_id):
     history = [{'sender': m.sender, 'content': m.content} for m in past_messages]
     
     # 3. Obtém a resposta da ClaudIA via Azure AI Foundry
-    ai_response_text = get_ai_response(history)
+    ai_response_text = get_ai_response(history, current_user.id)
     
     # 4. Salva a resposta da assistente
     assistant_msg = Message(conversation_id=conversation.id, sender='assistant', content=ai_response_text)

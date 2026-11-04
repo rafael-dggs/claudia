@@ -1,64 +1,35 @@
-import os
-from openai import AzureOpenAI, OpenAI
 from flask import current_app
+from app.rag.retrieval import retrieve_context
+from app.agents.supervisor import classify_intent
+from app.agents.professor import generate_teaching_response
+from app.agents.evaluator import generate_quiz_response
 
-CLANDIA_SYSTEM_PROMPT = """Você é a ClaudIA, uma professora virtual inteligente, acolhedora, paciente e didática.
-Seu objetivo é auxiliar o aluno a aprender, compreender e aprofundar qualquer assunto solicitado.
-
-DIRETRIZES PEDAGÓGICAS:
-1. Explique conceitos progressivamente, dividindo assuntos complexos em etapas menores.
-2. Utilize exemplos práticos, analogias e comparações claras do cotidiano.
-3. Identifique dificuldades de entendimento implícitas e reformule explicações quando necessário.
-4. Incentive o pensamento crítico e a autonomia do estudante, fazendo perguntas instigantes.
-5. Mantenha um tom profissional, acolhedor e simpático, sem ser excessivamente formal ou exageradamente meloso.
-6. Nunca invente informações factuais quando faltarem dados nas fontes (o que será expandido com RAG nas próximas fases). Seja transparente.
-"""
-
-def get_ai_response(conversation_history: list) -> str:
+def get_ai_response(conversation_history: list, user_id: int) -> str:
     """
-    Envia o histórico da conversa para o modelo LLM configurado no Azure AI Foundry
-    e retorna a resposta pedagógica da ClaudIA.
+    Orquestra a arquitetura multiagente:
+    1. Recupera contexto vetorial (RAG).
+    2. Classifica a intenção via Supervisor.
+    3. Roteia para o Agente Professor ou Avaliador.
     """
-    endpoint = current_app.config.get('AZURE_AI_ENDPOINT')
-    api_key = current_app.config.get('AZURE_AI_API_KEY')
-    deployment_name = current_app.config.get('AZURE_AI_DEPLOYMENT_NAME', 'gpt-4o')
+    if not conversation_history:
+        return "Olá! Como posso ajudar nos seus estudos hoje?"
 
-    # Monta as mensagens estruturadas para a API
-    messages = [{"role": "system", "content": CLANDIA_SYSTEM_PROMPT}]
-    for msg in conversation_history:
-        messages.append({
-            "role": msg['sender'],  # 'user' ou 'assistant'
-            "content": msg['content']
-        })
+    last_user_msg = conversation_history[-1]['content']
 
-    # Fallback caso as chaves do Azure não estejam configuradas no .env (para testes iniciais de UI)
-    if not endpoint or not api_key or 'seu-recurso' in endpoint:
-        # Resposta simulada inteligente para validação da interface e fluxo
-        last_user_msg = conversation_history[-1]['content'] if conversation_history else ""
-        return (
-            f"Olá! Percebi que você perguntou sobre: *\"{last_user_msg}\"*. "
-            "Como ainda estamos configurando as chaves oficiais do Azure AI Foundry no seu arquivo `.env`, "
-            "esta é uma resposta simulada da minha personalidade pedagógica. "
-            "Assim que você inserir suas credenciais reais do Azure, estarei conectada ao GPT para te ensinar "
-            "com analogias, exemplos práticos e explicações passo a passo!"
-        )
+    # 1. Recuperação RAG (Independente da intenção, o documento apoia tanto ensino quanto quizzes)
+    context_text = retrieve_context(query=last_user_msg, user_id=user_id)
+
+    # 2. Supervisão / Classificação
+    intent = classify_intent(last_user_msg)
+    current_app.logger.info(f"Intenção detectada pelo Supervisor: {intent}")
 
     try:
-        # Inicialização do cliente Azure OpenAI
-        client = AzureOpenAI(
-            azure_endpoint=endpoint,
-            api_key=api_key,
-            api_version="2024-02-15-preview"
-        )
-
-        response = client.chat.completions.create(
-            model=deployment_name,
-            messages=messages,
-            temperature=0.7,
-            max_tokens=1500
-        )
-
-        return response.choices[0].message.content
+        # 3. Roteamento Multiagente
+        if intent == 'QUIZ':
+            return generate_quiz_response(conversation_history, context_text)
+        else:
+            return generate_teaching_response(conversation_history, context_text)
+            
     except Exception as e:
-        current_app.logger.error(f"Erro ao comunicar com Azure AI Foundry: {str(e)}")
-        return "Desculpe, tive um pequeno problema técnico ao consultar meus servidores de IA no Azure. Por favor, tente novamente em instantes."
+        current_app.logger.error(f"Falha na arquitetura multiagente: {e}")
+        return "Desculpe, meus agentes enfrentaram uma instabilidade técnica. Pode tentar novamente?"

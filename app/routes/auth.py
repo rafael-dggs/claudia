@@ -8,7 +8,7 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('chat.index')) # <-- Alterado aqui
         
     if request.method == 'POST':
         email = request.form.get('email', '').strip()
@@ -19,7 +19,7 @@ def login():
             login_user(user)
             flash('Bem-vinda(o) de volta! A ClaudIA estava te esperando.', 'success')
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('index'))
+            return redirect(next_page or url_for('chat.index')) # <-- Alterado aqui
         else:
             flash('E-mail ou senha inválidos. Verifique seus dados.', 'danger')
             
@@ -28,7 +28,7 @@ def login():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('chat.index'))
         
     if request.method == 'POST':
         name = request.form.get('name', '').strip()
